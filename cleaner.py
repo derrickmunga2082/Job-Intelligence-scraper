@@ -28,19 +28,19 @@ from config import (
 
     BLOCKED_TECHNICAL_TITLES,
 
+    REMOTE_ONLY_KEYWORDS,
+
+    ON_SITE_OVERRIDE_KEYWORDS,
+
     MAX_JOB_AGE_DAYS,
 
     MINIMUM_JOB_SCORE,
-
-    KENYA_SCORE,
 
     NGO_SCORE,
 
     SENIORITY_SCORE,
 
-    EXPERIENCE_SCORE,
-
-    EAST_AFRICA_SCORE
+    EXPERIENCE_SCORE
 
 )
 
@@ -110,29 +110,14 @@ def is_procurement_job(text):
 
     text = text.lower()
 
-    procurement_keywords = [
-
-        "procurement",
-
-        "purchasing",
-
-        "strategic sourcing",
-
-        "sourcing",
-
-        "buyer",
-
-        "supplier",
-
-        "supplier management",
-
-        "vendor management",
-
-        "vendor",
-
-        "contract procurement"
-
-    ]
+    # Was previously a second, hand-maintained copy of this list that had
+    # drifted out of sync with TARGET_FUNCTIONS["Procurement"] in
+    # config.py (it was missing "contract management"), which meant
+    # valid_job_title()/calculate_job_score() silently rejected some
+    # jobs that config.py's own category list considered Procurement.
+    # Reading straight from TARGET_FUNCTIONS keeps the two in sync by
+    # construction.
+    procurement_keywords = TARGET_FUNCTIONS["Procurement"]
 
     return any(
 
@@ -152,33 +137,9 @@ def is_logistics_job(text):
 
     text = text.lower()
 
-    logistics_keywords = [
-
-        "logistics",
-
-        "supply chain",
-
-        "distribution",
-
-        "transport",
-
-        "warehouse",
-
-        "inventory",
-
-        "fleet",
-
-        "shipping",
-
-        "freight",
-
-        "transportation",
-
-        "materials management",
-
-        "materials logistics"
-
-    ]
+    # Same fix as is_procurement_job() above: read from TARGET_FUNCTIONS
+    # instead of keeping a second hand-maintained copy of the list.
+    logistics_keywords = TARGET_FUNCTIONS["Logistics"]
 
     return any(
 
@@ -425,6 +386,82 @@ def is_ngo_job(job):
 
 
 # ==========================================================
+# CHECK REMOTE-ONLY (WE WANT ON-SITE OR HYBRID ONLY)
+# ==========================================================
+
+
+def is_remote_only_job(job):
+
+    title = clean_text(
+
+        job.get("title")
+
+    ).lower()
+
+    description = clean_text(
+
+        job.get("description")
+
+    ).lower()
+
+    employment_type = clean_text(
+
+        job.get("employment_type")
+
+    ).lower()
+
+    location = clean_text(
+
+        job.get("location")
+
+    ).lower()
+
+    text = (
+
+        title
+
+        + " "
+
+        + description
+
+        + " "
+
+        + employment_type
+
+        + " "
+
+        + location
+
+    )
+
+    # No remote signal at all -> assume on-site (the common case; most
+    # real postings never bother to say "on-site" explicitly).
+    has_remote_signal = any(
+
+        keyword in text
+
+        for keyword in REMOTE_ONLY_KEYWORDS
+
+    )
+
+    if not has_remote_signal:
+
+        return False
+
+    # A remote signal is present, but so is a hybrid/on-site one (e.g.
+    # "Hybrid (2 days remote)") - that's not a remote-only posting.
+    has_onsite_override = any(
+
+        keyword in text
+
+        for keyword in ON_SITE_OVERRIDE_KEYWORDS
+
+    )
+
+    return not has_onsite_override
+
+
+# ==========================================================
 # JOB SCORE
 # ==========================================================
 
@@ -513,12 +550,25 @@ def calculate_job_score(job):
 
 
     # ======================================================
-    # KENYA PRIORITY
+    # KENYA REQUIRED (HARD GATE)
+    # ======================================================
+    # Was a +KENYA_SCORE bonus only. Since a title-keyword match alone
+    # (50) already exceeds MINIMUM_JOB_SCORE (40), a bonus never
+    # actually stopped a non-Kenya job from passing - only a hard
+    # rejection does.
+
+    if not is_kenya_job(job):
+
+        return -100
+
+
+    # ======================================================
+    # ON-SITE OR HYBRID REQUIRED (HARD GATE)
     # ======================================================
 
-    if is_kenya_job(job):
+    if is_remote_only_job(job):
 
-        score += KENYA_SCORE
+        return -100
 
 
     # ======================================================
@@ -528,15 +578,6 @@ def calculate_job_score(job):
     if is_ngo_job(job):
 
         score += NGO_SCORE
-
-
-    # ======================================================
-    # EAST AFRICA
-    # ======================================================
-
-    elif is_east_africa_job(job):
-
-        score += EAST_AFRICA_SCORE
 
 
     # ======================================================

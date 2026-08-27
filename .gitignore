@@ -1,0 +1,15 @@
+# Runtime-generated, don't commit
+database/
+output/
+__pycache__/
+*.pyc
+venv/
+.env
+
+# These were previously uploaded straight to the repo root via GitHub's
+# web upload (which bypasses .gitignore entirely, since it's not a git
+# commit) - excluded here too as a backstop for anyone using git normally.
+jobs.db
+jobs.csv
+jobs.xlsx
+*.db

@@ -12,6 +12,8 @@ import re
 
 from scrapers.base_scraper import BaseScraper
 
+from config import MAX_JOBS_PER_SOURCE
+
 
 
 
@@ -395,9 +397,11 @@ class GenericWebScraper(BaseScraper):
 
 
         # SPEED CONTROL
-        # Only scan first 20 jobs
+        # Was hardcoded to 20 regardless of config - now respects the
+        # same MAX_JOBS_PER_SOURCE the RSS and job board scrapers use,
+        # so one setting controls all sources consistently.
 
-        for url in job_links[:20]:
+        for url in job_links[:MAX_JOBS_PER_SOURCE]:
 
 
             page = self.fetch_page(

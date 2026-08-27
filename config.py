@@ -23,6 +23,14 @@ REQUEST_DELAY_SECONDS = 0.5
 
 MAX_JOBS_PER_SOURCE = 50
 
+# Job board listing pages only used to be scraped one page deep, which
+# was a real ceiling on volume - e.g. jobwebkenya.com has 264 pages of
+# listings and careerpointkenya.co.ke has 58, but only page 1 was ever
+# looked at. This lets job_board_scraper.py page through more of the
+# archive per site (verified 2026-08-27 that all 5 job-board sources
+# support either /jobs/page/N/ or ?page=N pagination).
+MAX_PAGES_PER_SOURCE = 5
+
 
 # ==========================================================
 # TARGET JOB FUNCTIONS
@@ -53,7 +61,11 @@ TARGET_FUNCTIONS = {
 
         "contract management",
 
-        "contract procurement"
+        "contract procurement",
+
+        "tender",
+
+        "tendering"
 
     ],
 
@@ -547,6 +559,79 @@ BLOCKED_TECHNICAL_TITLES = [
 
 
 # ==========================================================
+# WORK ARRANGEMENT
+# ONLY ON-SITE OR HYBRID - NO FULLY REMOTE ROLES
+# ==========================================================
+#
+# A job is only rejected as "remote" when it contains one of the
+# REMOTE_ONLY_KEYWORDS AND none of the ON_SITE_OVERRIDE_KEYWORDS.
+# Postings that don't mention work arrangement at all are assumed
+# on-site (the common case for Kenyan job boards) rather than requiring
+# an explicit "on-site" label, which most real postings never bother to
+# state. This also means "Hybrid (2 days remote)" style postings are
+# correctly kept, since the override keyword outweighs the remote one.
+# ==========================================================
+
+REMOTE_ONLY_KEYWORDS = [
+
+    "fully remote",
+
+    "100% remote",
+
+    "remote only",
+
+    "remote-only",
+
+    "remote position",
+
+    "remote role",
+
+    "remote job",
+
+    "work from home",
+
+    "work-from-home",
+
+    "telecommute",
+
+    "telecommuting",
+
+    "virtual position",
+
+    "virtual role",
+
+    "work from anywhere",
+
+    "home based",
+
+    "home-based"
+
+]
+
+ON_SITE_OVERRIDE_KEYWORDS = [
+
+    "hybrid",
+
+    "on-site",
+
+    "onsite",
+
+    "on site",
+
+    "in-office",
+
+    "in office",
+
+    "physical presence",
+
+    "office based",
+
+    "office-based"
+
+]
+
+
+# ==========================================================
 # DATE FILTER
 # ==========================================================
 
@@ -563,6 +648,14 @@ MINIMUM_JOB_SCORE = 40
 # ==========================================================
 # KENYA SCORE
 # ==========================================================
+#
+# NOTE: Kenya location is now a hard requirement in
+# calculate_job_score() (non-Kenya jobs are rejected outright), not just
+# a bonus - a title-keyword match alone (50) already exceeded
+# MINIMUM_JOB_SCORE (40), so leaving Kenya as a bonus meant non-Kenya
+# jobs could still pass. KENYA_SCORE/EAST_AFRICA_SCORE below are kept
+# in case a future version wants to rank Kenya jobs above other East
+# African ones again, but neither is currently added to the score.
 
 KENYA_SCORE = 30
 
