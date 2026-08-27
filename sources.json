@@ -38,6 +38,22 @@
             "type": "job_board",
             "url": "https://www.fuzu.com/kenya/jobs",
             "enabled": true
+        },
+
+
+        {
+            "name": "JobWeb Kenya",
+            "type": "job_board",
+            "url": "https://www.jobwebkenya.com/jobs/",
+            "enabled": true
+        },
+
+
+        {
+            "name": "Corporate Staffing Services",
+            "type": "job_board",
+            "url": "https://www.corporatestaffing.co.ke/jobs/",
+            "enabled": true
         }
 
     ]

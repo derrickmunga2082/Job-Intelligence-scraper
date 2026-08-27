@@ -14,6 +14,8 @@ from database import (
 
     create_database,
 
+    purge_stale_jobs,
+
     save_job,
 
     count_jobs
@@ -175,6 +177,8 @@ def start():
 
 
     create_database()
+
+    purge_stale_jobs()
 
 
 
