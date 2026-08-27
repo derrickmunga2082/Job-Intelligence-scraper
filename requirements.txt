@@ -1,0 +1,10 @@
+requests
+beautifulsoup4
+pandas
+openpyxl
+python-dateutil
+lxml
+feedparser
+python-dotenv
+sqlalchemy
+playwright

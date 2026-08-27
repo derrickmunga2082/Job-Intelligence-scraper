@@ -1,0 +1,44 @@
+{
+    "sources": [
+
+        {
+            "name": "ReliefWeb Jobs",
+            "type": "rss",
+            "url": "https://reliefweb.int/jobs/rss.xml",
+            "enabled": true
+        },
+
+
+        {
+            "name": "CareerPoint Kenya",
+            "type": "job_board",
+            "url": "https://www.careerpointkenya.co.ke/jobs/",
+            "enabled": true
+        },
+
+
+        {
+            "name": "MyJobMag Kenya",
+            "type": "job_board",
+            "url": "https://www.myjobmag.co.ke/jobs",
+            "enabled": true
+        },
+
+
+        {
+            "name": "BrighterMonday Kenya",
+            "type": "job_board",
+            "url": "https://www.brightermonday.co.ke/jobs",
+            "enabled": true
+        },
+
+
+        {
+            "name": "Fuzu Kenya",
+            "type": "job_board",
+            "url": "https://www.fuzu.com/kenya/jobs",
+            "enabled": true
+        }
+
+    ]
+}
